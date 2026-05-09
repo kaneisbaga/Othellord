@@ -1,0 +1,46 @@
+.notify{
+
+position:fixed;
+
+top:20px;
+right:20px;
+
+padding:16px 22px;
+
+border-radius:16px;
+
+background:
+linear-gradient(
+45deg,
+#00d4ff,
+#67ff9a
+);
+
+color:#001018;
+
+font-weight:900;
+
+z-index:999999;
+
+animation:
+notifyIn .3s;
+}
+
+@keyframes notifyIn{
+
+0%{
+
+opacity:0;
+
+transform:
+translateX(40px);
+}
+
+100%{
+
+opacity:1;
+
+transform:
+translateX(0);
+}
+}

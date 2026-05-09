@@ -1,0 +1,72 @@
+.panel{
+
+width:min(28vw,320px);
+height:min(78vh,900px);
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+gap:1.4vh;
+
+padding:2vh;
+
+background:#252525;
+
+border-radius:1.5vh;
+}
+
+.panel h2{
+
+margin:0;
+
+font-size:clamp(24px,3vh,42px);
+}
+
+.panel p{
+
+margin:0;
+
+font-size:clamp(16px,1.8vh,24px);
+
+line-height:1.5;
+}
+
+.panel button{
+
+width:100%;
+
+padding:1.2vh;
+
+border:none;
+
+border-radius:1vh;
+
+font-size:clamp(15px,1.8vh,22px);
+
+cursor:pointer;
+
+transition:
+transform 0.12s,
+opacity 0.12s;
+}
+
+.panel button:hover{
+
+transform:scale(1.03);
+
+opacity:0.92;
+}
+
+.winner{
+
+margin-top:2vh;
+
+font-size:clamp(22px,3vh,40px);
+
+font-weight:bold;
+
+text-align:center;
+}
