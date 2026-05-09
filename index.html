@@ -1,40 +1,651 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Othellord</title>
 
-<meta charset="UTF-8" />
+<style>
+*{
+box-sizing:border-box;
+}
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
+html,body{
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+font-family:Arial,sans-serif;
+background:#1b1b1b;
+color:white;
+}
 
-<title>
-黑白棋 V3
-</title>
+body{
+display:flex;
+justify-content:center;
+align-items:center;
+}
 
+.game{
+width:100vw;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:24px;
+padding:12px;
+}
+
+.panel{
+width:320px;
+height:min(92vh,900px);
+background:#262626;
+border-radius:20px;
+padding:20px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.panel h1{
+margin:0;
+font-size:38px;
+}
+
+.info{
+font-size:20px;
+line-height:1.5;
+}
+
+button{
+border:none;
+border-radius:14px;
+padding:14px;
+font-size:18px;
+cursor:pointer;
+transition:0.15s;
+}
+
+button:hover{
+transform:scale(1.03);
+}
+
+#winner{
+font-size:32px;
+font-weight:bold;
+margin-top:auto;
+text-align:center;
+}
+
+#board{
+width:min(82vh,82vw);
+height:min(82vh,82vw);
+background:#145214;
+padding:10px;
+border-radius:20px;
+display:grid;
+grid-template-columns:repeat(8,1fr);
+grid-template-rows:repeat(8,1fr);
+gap:8px;
+}
+
+.cell{
+background:#2f8f2f;
+border-radius:12px;
+display:flex;
+justify-content:center;
+align-items:center;
+position:relative;
+transition:0.15s;
+}
+
+.cell:hover{
+transform:scale(1.03);
+background:#38a838;
+}
+
+.piece{
+width:78%;
+height:78%;
+border-radius:999px;
+transition:0.2s;
+}
+
+.black{
+background:black;
+}
+
+.white{
+background:white;
+border:2px solid black;
+}
+
+.hint{
+width:18%;
+height:18%;
+background:#4da6ff;
+border-radius:999px;
+}
+
+body.black-turn .cell{
+cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='16' cy='16' r='12' fill='black' stroke='white' stroke-width='2'/%3E%3C/svg%3E") 16 16, auto;
+}
+
+body.white-turn .cell{
+cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='16' cy='16' r='12' fill='white' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 16 16, auto;
+}
+
+#help{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.8);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.help-box{
+width:min(900px,92vw);
+height:min(88vh,900px);
+background:#252525;
+border-radius:20px;
+padding:24px;
+overflow:auto;
+}
+
+.help-box h1{
+font-size:40px;
+}
+
+.help-box h2{
+margin-top:24px;
+font-size:28px;
+}
+
+.help-box p,
+.help-box li{
+font-size:20px;
+line-height:1.8;
+}
+
+@media(max-width:900px){
+
+html,body{
+overflow:auto;
+}
+
+.game{
+flex-direction:column;
+height:auto;
+}
+
+.panel{
+width:94vw;
+height:auto;
+}
+
+#board{
+width:94vw;
+height:94vw;
+}
+}
+</style>
 </head>
 
 <body>
 
-<div id="app">
+<div class="game">
 
-    <div class="game-layout">
+<div class="panel">
 
-        <div class="panel"></div>
+<h1>🎮 Othellord</h1>
 
-        <div id="board"></div>
+<div class="info" id="modeText"></div>
+<div class="info" id="turnText"></div>
+<div class="info" id="bossText"></div>
+<div class="info" id="scoreText"></div>
 
-    </div>
+<button id="modeBtn">👥 雙人模式</button>
+<button id="restartBtn">🔄 重新開始</button>
+<button id="helpBtn">📖 遊戲說明</button>
+
+<div id="winner"></div>
 
 </div>
 
-<script
-type="module"
-src="/src/main.js">
+<div id="board"></div>
+
+</div>
+
+<div id="help">
+
+<div class="help-box">
+
+<h1>📖 黑白棋 BOSS戰 遊戲說明</h1>
+
+<h2>🎯 遊戲目標</h2>
+<p>讓自己的棋子數量超過對手。</p>
+
+<h2>⚫⚪ 基本規則</h2>
+<p>黑棋先下，白棋後下。</p>
+<p>只要從直線或斜線夾住對手棋子，中間棋子就會全部翻面。</p>
+
+<h2>🔵 引導點</h2>
+<p>藍色點點代表目前可以落子的地方。</p>
+
+<h2>👹 BOSS模式</h2>
+<p>白棋由 AI 操作。</p>
+<p>AI 會有思考時間，像真人對戰。</p>
+
+<h2>👥 雙人模式</h2>
+<p>黑白雙方都由真人操作。</p>
+
+<h2>🏆 勝利條件</h2>
+<p>棋盤結束時，棋子較多的一方獲勝。</p>
+
+<h2>🧠 新手技巧</h2>
+<ul>
+<li>優先搶角落</li>
+<li>不要太早送邊線</li>
+<li>後期翻盤很常見</li>
+<li>保留更多可下位置</li>
+</ul>
+
+<button onclick="closeHelp()">關閉說明</button>
+
+</div>
+
+</div>
+
+<script>
+const state = {
+
+board:[],
+current:1,
+gameOver:false,
+twoPlayer:false,
+bossLevel:1,
+playerName:'玩家',
+showHints:false
+}
+
+const boardEl =
+document.getElementById('board')
+
+const dirs = [
+
+[-1,-1],[0,-1],[1,-1],
+[-1,0],[1,0],
+[-1,1],[0,1],[1,1]
+]
+
+function init(){
+
+state.board=[]
+
+for(let y=0;y<8;y++){
+
+const row=[]
+
+for(let x=0;x<8;x++){
+
+row.push(0)
+}
+
+state.board.push(row)
+}
+
+state.board[3][3]=-1
+state.board[4][4]=-1
+state.board[3][4]=1
+state.board[4][3]=1
+
+state.current=1
+state.gameOver=false
+
+render()
+}
+
+function inside(x,y){
+
+return x>=0&&y>=0&&x<8&&y<8
+}
+
+function valid(x,y,p){
+
+if(state.board[y][x]!==0)
+return false
+
+for(const [dx,dy] of dirs){
+
+let cx=x+dx
+let cy=y+dy
+let enemy=false
+
+while(inside(cx,cy)){
+
+const v=state.board[cy][cx]
+
+if(v===-p){
+
+enemy=true
+}
+else if(v===p){
+
+if(enemy)
+return true
+
+break
+}
+else{
+
+break
+}
+
+cx+=dx
+cy+=dy
+}
+}
+
+return false
+}
+
+function applyMove(x,y,p){
+
+if(!valid(x,y,p))
+return false
+
+state.board[y][x]=p
+
+for(const [dx,dy] of dirs){
+
+const flips=[]
+
+let cx=x+dx
+let cy=y+dy
+
+while(inside(cx,cy)){
+
+const v=state.board[cy][cx]
+
+if(v===-p){
+
+flips.push([cx,cy])
+}
+else if(v===p){
+
+for(const [fx,fy] of flips){
+
+state.board[fy][fx]=p
+}
+
+break
+}
+else{
+
+break
+}
+
+cx+=dx
+cy+=dy
+}
+}
+
+return true
+}
+
+function hasMove(p){
+
+for(let y=0;y<8;y++){
+
+for(let x=0;x<8;x++){
+
+if(valid(x,y,p))
+return true
+}
+}
+
+return false
+}
+
+function render(){
+
+boardEl.innerHTML=''
+
+document.body.classList.remove(
+'black-turn',
+'white-turn'
+)
+
+document.body.classList.add(
+
+state.current===1
+?'black-turn'
+:'white-turn'
+)
+
+document.getElementById('modeText').innerText=
+
+state.twoPlayer
+?'👥 雙人模式'
+:'👹 BOSS模式'
+
+document.getElementById('turnText').innerText=
+
+state.current===1
+?'⚫ 黑棋回合'
+:'⚪ 白棋回合'
+
+document.getElementById('bossText').innerText=
+
+'👹 BOSS LV ' + state.bossLevel
+
+document.getElementById('modeBtn').innerText=
+
+state.twoPlayer
+?'👹 切換BOSS模式'
+:'👥 切換雙人模式'
+
+let black=0
+let white=0
+
+for(let y=0;y<8;y++){
+
+for(let x=0;x<8;x++){
+
+const v=state.board[y][x]
+
+if(v===1) black++
+if(v===-1) white++
+
+const cell=document.createElement('div')
+
+cell.className='cell'
+
+if(v!==0){
+
+const piece=document.createElement('div')
+
+piece.className=
+
+v===1
+?'piece black'
+:'piece white'
+
+cell.appendChild(piece)
+}
+
+if(
+
+state.showHints &&
+valid(x,y,state.current)
+
+){
+
+const hint=document.createElement('div')
+
+hint.className='hint'
+
+cell.appendChild(hint)
+}
+
+cell.onclick=()=>move(x,y)
+
+boardEl.appendChild(cell)
+}
+}
+
+document.getElementById('scoreText').innerText=
+
+`⚫ ${black} : ${white} ⚪`
+}
+
+async function move(x,y){
+
+if(state.gameOver)
+return
+
+if(!applyMove(x,y,state.current))
+return
+
+state.current*=-1
+
+render()
+
+if(!hasMove(state.current)){
+
+state.current*=-1
+
+if(!hasMove(state.current)){
+
+finish()
+return
+}
+}
+
+render()
+
+if(
+!state.twoPlayer &&
+state.current===-1
+){
+
+await aiTurn()
+}
+}
+
+async function aiTurn(){
+
+await delay(1200)
+
+const moves=[]
+
+for(let y=0;y<8;y++){
+
+for(let x=0;x<8;x++){
+
+if(valid(x,y,-1)){
+
+moves.push({x,y})
+}
+}
+}
+
+if(moves.length<=0){
+
+state.current=1
+render()
+return
+}
+
+const corners = moves.filter(m =>
+
+(m.x===0&&m.y===0)||
+(m.x===7&&m.y===0)||
+(m.x===0&&m.y===7)||
+(m.x===7&&m.y===7)
+)
+
+const move =
+
+corners.length>0
+?corners[0]
+:moves[Math.floor(Math.random()*moves.length)]
+
+applyMove(move.x,move.y,-1)
+
+state.current=1
+
+render()
+
+if(
+!hasMove(1)&&
+!hasMove(-1)
+){
+
+finish()
+}
+}
+
+function finish(){
+
+state.gameOver=true
+
+let black=0
+let white=0
+
+for(let y=0;y<8;y++){
+
+for(let x=0;x<8;x++){
+
+const v=state.board[y][x]
+
+if(v===1) black++
+if(v===-1) white++
+}
+}
+
+document.getElementById('winner').innerText=
+
+black>white
+?'🎉 黑棋勝利'
+:white>black
+?'⚪ 白棋勝利'
+:'⚖ 平手'
+}
+
+function delay(ms){
+
+return new Promise(
+r=>setTimeout(r,ms)
+)
+}
+
+document.getElementById('modeBtn').onclick=()=>{
+
+state.twoPlayer=!state.twoPlayer
+
+init()
+}
+
+document.getElementById('restartBtn').onclick=()=>{
+
+init()
+}
+
+document.getElementById('helpBtn').onclick=()=>{
+
+document.getElementById('help').style.display='flex'
+}
+
+function closeHelp(){
+
+document.getElementById('help').style.display='none'
+}
+
+init()
 </script>
 
 </body>
-
 </html>
