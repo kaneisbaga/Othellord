@@ -1,3 +1,4 @@
+https://kaneisbaga.github.io/Othellord/
 # 黑白棋 BOSS戰 V3
 
 ## 啟動
